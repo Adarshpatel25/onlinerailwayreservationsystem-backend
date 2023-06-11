@@ -1,0 +1,80 @@
+body {
+    background-image: url('/images/showBookingsImg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.container {
+    background-color: aliceblue;
+    height: 600px;
+    width: 40%;
+    margin: 60px auto;
+    border-radius: 3px;
+    overflow: scroll;
+}
+
+.showBookings {
+    margin-top: 30px;
+}
+
+.booking {
+    position: relative;
+    height: 120px;
+    border: 2px solid rgb(88, 86, 86);
+    margin: 10px 20px;
+}
+
+h2 {
+    position: absolute;
+    left: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 300;
+    color: purple;
+  
+}
+
+#ticketfee {
+    position: absolute;
+    font-size: 30px;
+    top: 15px;
+    right: 20px;
+}
+
+#fromStation {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+}
+.arrow {
+    position: absolute;
+    bottom: 7px;
+    left: 125px;
+}
+#toStation {
+    position: absolute;
+    bottom: 10px;
+    left: 180px;
+}
+
+.timing {
+	position: absolute
+}
+
+.arrow {
+    position: absolute;
+    bottom: 7px;
+    left: 125px;
+}
+
+#time {
+    position: absolute;
+    bottom: 10px;
+    right: 100px;
+    margin-right: 20px;
+}
+
+#date {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+}
