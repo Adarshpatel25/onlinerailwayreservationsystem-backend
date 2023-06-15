@@ -64,10 +64,10 @@ public class Users {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-	public boolean isAdmin() {
+	public boolean getIsAdmin() {
 		return isAdmin;
 	}
-	public void setAdmin(boolean isAdmin) {
+	public void setIsAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 	public List<Passenger> getPassengers() {

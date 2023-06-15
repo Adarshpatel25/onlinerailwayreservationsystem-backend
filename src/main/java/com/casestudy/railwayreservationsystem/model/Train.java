@@ -25,7 +25,7 @@ public class Train {
 	@OneToMany(cascade= {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy="train")
 	private List<Seat> seat;
 	
-	@OneToMany(mappedBy="train")
+	@OneToMany(cascade = {CascadeType.PERSIST}, mappedBy="train")
 	private List<SeatReservation> seatReservation;
 
 	@OneToMany(mappedBy="train", cascade = CascadeType.ALL)

@@ -1,12 +1,13 @@
 package com.casestudy.railwayreservationsystem.model;
 
-import javax.annotation.Generated;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Passenger {
@@ -18,6 +19,11 @@ public class Passenger {
 	@ManyToOne
 	@JoinColumn(name="user_id")
 	private Users user;
+	
+	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+	@JoinColumn(name = "seat_no")
+	private Seat seat;
+	
 	
 	@ManyToOne
 	@JoinColumn(name="pnr_no")
@@ -67,11 +73,20 @@ public class Passenger {
 		this.passengerAge = passengerAge;
 	}
 
-	public Passenger(int passengerId, Users user, SeatReservation seatReservation, String passengerName,
+	public Seat getSeat() {
+		return seat;
+	}
+
+	public void setSeat(Seat seat) {
+		this.seat = seat;
+	}
+
+
+	public Passenger(int passengerId, Users user, Seat seat, SeatReservation seatReservation, String passengerName,
 			int passengerAge) {
-		super();
 		this.passengerId = passengerId;
 		this.user = user;
+		this.seat = seat;
 		this.seatReservation = seatReservation;
 		this.passengerName = passengerName;
 		this.passengerAge = passengerAge;

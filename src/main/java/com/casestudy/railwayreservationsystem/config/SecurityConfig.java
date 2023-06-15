@@ -38,17 +38,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		http.csrf().disable().authorizeRequests()
-//				.antMatchers("/booking/**").hasRole("USER")
-//				.antMatchers("/admin/**").hasRole("ADMIN")
 				 .antMatchers("/authenticate").permitAll()
 				 .and().formLogin()
-				.loginPage("http://localhost:3000/login").and().logout().logoutSuccessUrl("http://localhost:3000/")
-				.addLogoutHandler(new SecurityContextLogoutHandler()).and().sessionManagement()
+				.loginPage("http://localhost:3000/login").and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		;
+		
 
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		http.cors();
+		
 	}
 
 

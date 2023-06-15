@@ -1,6 +1,8 @@
 package com.casestudy.railwayreservationsystem.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -16,7 +18,9 @@ import com.casestudy.railwayreservationsystem.dao.TrainRepository;
 import com.casestudy.railwayreservationsystem.dao.UserRepository;
 import com.casestudy.railwayreservationsystem.dto.MyBookings;
 import com.casestudy.railwayreservationsystem.dto.PassengerDetails;
+import com.casestudy.railwayreservationsystem.dto.SeatDto;
 import com.casestudy.railwayreservationsystem.dto.TrainDto;
+import com.casestudy.railwayreservationsystem.dto.TrainSchedule;
 import com.casestudy.railwayreservationsystem.model.Passenger;
 import com.casestudy.railwayreservationsystem.model.Seat;
 import com.casestudy.railwayreservationsystem.model.SeatReservation;
@@ -36,7 +40,7 @@ public class BookingService {
 
 	@Autowired
 	private PassengerRepository passengerRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -48,47 +52,72 @@ public class BookingService {
 
 	@Autowired
 	private ModelMapper modelMapper;
-	
-	
+
 	public Users getUserBasedOnPnr(long pnrNo) {
 		return seatReservationRepository.findById(pnrNo).get().getUser();
 	}
-	
 
-	public List<TrainDto> getTrainBasedOnDestination(String fromLocation, String toLocation) {
-		List<TrainDestination> trainDestinationList = (List<TrainDestination>) trainDestinationRepository.findAll();
-		int countOfLocations = 0;
-		long currentTrainNo = trainDestinationList.get(0).getTrain().getTrainNo();
+	public boolean isSeatAvailable(long trainNo, String seatCoach) {
+		Train train = trainRepository.findById(trainNo).get();
+		List<Seat> seatList = train.getSeat();
 
-		List<TrainDto> trains = new ArrayList<TrainDto>();
-		int flag = 0;
-		String fromStationTiming = "", toStationTiming = "";
-		for (TrainDestination tDest : trainDestinationList) {
-			if (currentTrainNo == tDest.getTrain().getTrainNo()) {
-				if (tDest.getDestination_name().equals(fromLocation)) {
-					flag = 1;
-					fromStationTiming = tDest.getDestination_timing();
-					countOfLocations++;
-				} else if (tDest.getDestination_name().equals(toLocation)) {
-					flag = 2;
-					toStationTiming = tDest.getDestination_timing();
-					countOfLocations++;
-				}
-				if (countOfLocations == 2 && flag == 2) {
-					TrainDto trainDto = modelMapper.map(tDest.getTrain(), TrainDto.class);
-					trainDto.setFromStationTiming(fromStationTiming);
-					trainDto.setToStationTiming(toStationTiming);
-					trainDto.setFromStation(fromLocation);
-					trainDto.setToStation(toLocation);
-					trains.add(trainDto);
-					countOfLocations = 0;
-					flag = 0;
-				}
-
-			} else {
-				countOfLocations = 0;
+		for (Seat seat : seatList) {
+			if (seat.getSeatCoach().equalsIgnoreCase(seatCoach) && seat.getIsAvailable()) {
+				return true;
 			}
-			currentTrainNo = tDest.getTrain().getTrainNo();
+		}
+
+		return false;
+	}
+
+	public List<TrainDto> getTrainBasedOnDestination(String fromLocation, String toLocation, String seatCoach) {
+
+		List<Train> trainList = (List<Train>) trainRepository.findAll();
+		List<TrainDto> trains = new ArrayList<TrainDto>();
+
+		for (Train train : trainList) {
+
+			int flag = 0;
+			String fromLocationTiming = "";
+			String toLocationTiming = "";
+
+			List<TrainDestination> trainDestinationList = train.getTrainDestination();
+			Collections.sort(trainDestinationList, new Comparator<TrainDestination>() {
+
+				@Override
+				public int compare(TrainDestination o1, TrainDestination o2) {
+					return (o1.getSequence_no() > o2.getSequence_no()) ? 1 : -1;
+				}
+
+			});
+
+			for (TrainDestination trainDestination : train.getTrainDestination()) {
+
+				if (trainDestination.getDestination_name().equalsIgnoreCase(fromLocation)) {
+					if (flag == 0) {
+						fromLocationTiming = trainDestination.getDestination_timing();
+						flag = 1;
+					}
+
+				} else if (trainDestination.getDestination_name().equalsIgnoreCase(toLocation)) {
+					if (flag == 1) {
+						toLocationTiming = trainDestination.getDestination_timing();
+						TrainDto trainDto = new TrainDto();
+						trainDto.setTrainNo(train.getTrainNo());
+						trainDto.setTrainName(train.getTrainName());
+						trainDto.setFromStation(fromLocation);
+						trainDto.setFromStationTiming(fromLocationTiming);
+						trainDto.setToStation(toLocation);
+						trainDto.setToStationTiming(toLocationTiming);
+
+						trains.add(trainDto);
+						System.out.println(trainDto);
+						break;
+					} else {
+						break;
+					}
+				}
+			}
 		}
 
 		return trains;
@@ -108,19 +137,19 @@ public class BookingService {
 		Users user = userRepository.findByEmail(email);
 
 		for (SeatReservation seatReservation : user.getSeatReservation()) {
-			
+
 			if (seatReservation.getUser().getEmail().equals(email)) {
-				
+
 				List<PassengerDetails> passengerDetailsList = new ArrayList<>();
-						
-				for(Passenger passenger: seatReservation.getPassenger()) {
+
+				for (Passenger passenger : seatReservation.getPassenger()) {
 					PassengerDetails passengerDetails = new PassengerDetails();
 					passengerDetails.setPassengerName(passenger.getPassengerName());
 					passengerDetails.setPassengerAge(passenger.getPassengerAge());
+					passengerDetails.setSeatNo(passenger.getSeat().getSeatNumber());
 					passengerDetailsList.add(passengerDetails);
 				}
-				
-				
+
 				MyBookings booking = new MyBookings();
 				booking.setTrainNo(seatReservation.getTrain().getTrainNo());
 				booking.setPnrNo(seatReservation.getPnrNo());
@@ -129,6 +158,8 @@ public class BookingService {
 				booking.setToStation(seatReservation.getToStation());
 				booking.setAmount(seatReservation.getTransaction().getAmount());
 				booking.setPassengerDetails(passengerDetailsList);
+			
+				booking.setSeatCoach(seatReservation.getSeatCoach());
 				booking.setReservationDate(seatReservation.getTrainDate());
 				booking.setTime(seatReservation.getTransaction().getTransactionTime());
 				booking.setDate(seatReservation.getTransaction().getTransactionDate());
@@ -165,8 +196,18 @@ public class BookingService {
 		return null;
 	}
 
-	public Double calculateTicketFee(String fromStation, String toStation) {
-		List<TrainDestination> trainDestinationList = (List<TrainDestination>) trainDestinationRepository.findAll();
+	public Double calculateTicketFee(long trainNo, String fromStation, String toStation, String seatCoach) {
+		
+		Train train = trainRepository.findById(trainNo).get();
+		List<TrainDestination> trainDestinationList = train.getTrainDestination();
+		Collections.sort(trainDestinationList, new Comparator<TrainDestination>() {
+
+			@Override
+			public int compare(TrainDestination o1, TrainDestination o2) {
+				return (o1.getSequence_no() > o2.getSequence_no()) ? 1 : -1;
+			}
+		});
+
 		int count = 0;
 		boolean canStart = false;
 		for (TrainDestination trainDestination : trainDestinationList) {
@@ -182,35 +223,72 @@ public class BookingService {
 		return (double) (count * 100);
 	}
 
-	public Seat generateSeat(MyBookings myBookings) {
-		List<Seat> seatList = (List<Seat>) seatRepository.findAll();
+	public void generateSeat(MyBookings myBookings, SeatReservation seatReservation) {
 
 		List<Seat> availableSeats = new ArrayList<Seat>();
 
+		Train train = trainRepository.findById(myBookings.getTrainNo()).get();
+		List<Seat> seatList = train.getSeat();
+		
+		List<Seat> seats = new ArrayList<Seat>();
+		List<Passenger> passengers = new ArrayList<Passenger>();
+		
 		if (myBookings.getSeatCoach().equalsIgnoreCase("First Class")) {
-			for (int i = 0; i < 20; i++) {
-				if (seatList.get(i).isAvailable() == true) {
-					availableSeats.add(seatList.get(i));
+			for (PassengerDetails passengersList : myBookings.getPassengerDetails()) {
+				for (int i = 0; i < 20; i++) {
+					if (seatList.get(i).getIsAvailable() == true) {
+						availableSeats.add(seatList.get(i));
+					}
 				}
+				Random random = new Random();
+				Seat seat = availableSeats.get(random.nextInt(availableSeats.size()));
+				seat.setIsAvailable(false);
+				Passenger passenger = new Passenger();
+				passenger.setPassengerName(passengersList.getPassengerName());
+				passenger.setPassengerAge(passengersList.getPassengerAge());
+				passenger.setSeat(seat);
+				passengers.add(passenger);
+				seats.add(seat);
 			}
 		} else if (myBookings.getSeatCoach().equalsIgnoreCase("Second Class")) {
-			for (int i = 20; i < 40; i++) {
-				if (seatList.get(i).isAvailable() == true) {
-					availableSeats.add(seatList.get(i));
+			for (PassengerDetails passengersList : myBookings.getPassengerDetails()) {
+				for (int i = 20; i < 40; i++) {
+					if (seatList.get(i).getIsAvailable() == true) {
+						availableSeats.add(seatList.get(i));
+					}
 				}
+				Random random = new Random();
+				Seat seat = availableSeats.get(random.nextInt(availableSeats.size()));
+				seat.setIsAvailable(false);
+				Passenger passenger = new Passenger();
+				passenger.setPassengerName(passengersList.getPassengerName());
+				passenger.setPassengerAge(passengersList.getPassengerAge());
+				passenger.setSeat(seat);
+				passengers.add(passenger);
+				seats.add(seat);
 			}
 		} else if (myBookings.getSeatCoach().equalsIgnoreCase("Third Class")) {
-			for (int i = 40; i < 60; i++) {
-				if (seatList.get(i).isAvailable() == true) {
-					availableSeats.add(seatList.get(i));
+			for (PassengerDetails passengersList : myBookings.getPassengerDetails()) {
+				for (int i = 40; i < 60; i++) {
+					if (seatList.get(i).getIsAvailable() == true) {
+						availableSeats.add(seatList.get(i));
+					}
 				}
+				Random random = new Random();
+				Seat seat = availableSeats.get(random.nextInt(availableSeats.size()));
+				seat.setIsAvailable(false);
+				Passenger passenger = new Passenger();
+				passenger.setPassengerName(passengersList.getPassengerName());
+				passenger.setPassengerAge(passengersList.getPassengerAge());
+				passenger.setSeat(seat);
+				passengers.add(passenger);
+				seats.add(seat);
 			}
 		}
 
-		Random random = new Random();
-		Seat seat = availableSeats.get(random.nextInt(availableSeats.size()));
-
-		return seat;
+		passengerRepository.saveAll(passengers);
+		seatReservation.setPassenger(passengers);
+	
 	}
 
 	public Transaction getTransaction(MyBookings myBookings, Users user) {
@@ -239,7 +317,8 @@ public class BookingService {
 		}
 		return "";
 	}
-	
+
+
 	public long saveBookings(MyBookings myBookings) {
 
 		SeatReservation seatReservation = new SeatReservation();
@@ -247,22 +326,18 @@ public class BookingService {
 		seatReservation.setUser(user);
 
 		List<Passenger> passengersList = new ArrayList<>();
-		for(PassengerDetails passengerDetails: myBookings.getPassengerDetails()) {
+		for (PassengerDetails passengerDetails : myBookings.getPassengerDetails()) {
 			Passenger passenger = new Passenger();
 			passenger.setPassengerName(passengerDetails.getPassengerName());
 			passenger.setPassengerAge(passengerDetails.getPassengerAge());
 			passengersList.add(passenger);
 		}
-		
-		
-		Seat seat = generateSeat(myBookings);
-		seat.setAvailable(false);
-		seatReservation.setSeat(seat);
+
+		generateSeat(myBookings, seatReservation);
+		seatReservation.setSeatCoach(myBookings.getSeatCoach());
 		
 		seatReservation.setTrainStatus(myBookings.getFromStation());
 
-		seatReservation.setPassenger(passengersList);
-		
 		Transaction transaction = getTransaction(myBookings, user);
 		seatReservation.setTransaction(transaction);
 
@@ -281,9 +356,9 @@ public class BookingService {
 		seatReservationList.add(seatReservation);
 		user.setSeatReservation(seatReservationList);
 		userRepository.save(user);
-		
-		return user.getSeatReservation().get(user.getSeatReservation().size()-1).getPnrNo();
-		
+
+		return user.getSeatReservation().get(user.getSeatReservation().size() - 1).getPnrNo();
+
 	}
 
 }

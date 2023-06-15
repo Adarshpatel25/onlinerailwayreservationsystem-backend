@@ -37,6 +37,9 @@ public class AuthenticationController {
 	private UserDetailsServiceImpl userDetailsServiceImpl;
 
 	@Autowired
+	private UserService userService;
+	
+	@Autowired
 	private JwtUtil jwtUtil;
 
 	@Autowired
@@ -58,22 +61,10 @@ public class AuthenticationController {
 		final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(authenticationRequest.getUsername());
 
 		final String jwt = jwtUtil.generateToken(userDetails);
-
-		
 		
 		return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
 	}
 
-
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
-	public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null) {
-			new SecurityContextLogoutHandler().logout(request, response, auth);
-		}
-		return "Success";
-	}
 
 }

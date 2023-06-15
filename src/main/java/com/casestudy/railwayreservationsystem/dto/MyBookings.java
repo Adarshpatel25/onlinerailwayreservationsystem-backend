@@ -12,8 +12,8 @@ public class MyBookings {
 	private String fromStation;
 	private String toStation;
 	private List<PassengerDetails> passengerDetails;
+	private String seatCoach;
 	private double amount;
-	private String seatCoach;		
 	private String time;
 	private String date;
 	private String reservationDate;
@@ -100,9 +100,11 @@ public class MyBookings {
 		this.isCancelled = isCancelled;
 	}
 	
+	
+	
 	public MyBookings(String email, long pnrNo, long trainNo, String trainName, String fromStation, String toStation,
-			List<PassengerDetails> passengerDetails, double amount, String seatCoach, String time, String date,
-			String reservationDate, boolean isCancelled) {
+			List<PassengerDetails> passengerDetails, String seatCoach, double amount, String time,
+			String date, String reservationDate, boolean isCancelled) {
 		super();
 		this.email = email;
 		this.pnrNo = pnrNo;
@@ -111,15 +113,16 @@ public class MyBookings {
 		this.fromStation = fromStation;
 		this.toStation = toStation;
 		this.passengerDetails = passengerDetails;
-		this.amount = amount;
 		this.seatCoach = seatCoach;
+		this.amount = amount;
 		this.time = time;
 		this.date = date;
 		this.reservationDate = reservationDate;
 		this.isCancelled = isCancelled;
 	}
+	
 	public MyBookings() {
-		super();
+	
 	}
 	
 	
@@ -127,7 +130,7 @@ public class MyBookings {
 	public String toString() {
 		return "MyBookings [email=" + email + ", pnrNo=" + pnrNo + ", trainNo=" + trainNo + ", trainName=" + trainName
 				+ ", fromStation=" + fromStation + ", toStation=" + toStation + ", passengerDetails=" + passengerDetails
-				+ ", amount=" + amount + ", seatCoach=" + seatCoach + ", time=" + time + ", date=" + date
+				+ ", seatCoach=" + seatCoach + ", amount=" + amount + ", time=" + time + ", date=" + date
 				+ ", reservationDate=" + reservationDate + ", isCancelled=" + isCancelled + "]";
 	}
 	

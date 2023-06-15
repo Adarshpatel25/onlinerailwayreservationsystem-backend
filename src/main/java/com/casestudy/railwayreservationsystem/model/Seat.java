@@ -1,29 +1,29 @@
 package com.casestudy.railwayreservationsystem.model;
 
-import java.io.Serializable;
 
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-
 
 @Entity
-public class Seat implements Serializable {
+public class Seat {
 
 	@Id
 	private int seatId;
+	
+	@ManyToOne
+	@JoinColumn(name="seat_reservation_id")
+	private SeatReservation seatReservation;
 	
 	@JsonIgnore
 	@NotFound(action = NotFoundAction.IGNORE)
@@ -31,7 +31,7 @@ public class Seat implements Serializable {
 	@JoinColumn(name="train_no")
 	private Train train;
 	
-	private int seatNo;
+	private int seatNumber;
 	
 	private String seatType;
 	
@@ -55,12 +55,12 @@ public class Seat implements Serializable {
 		this.train = train;
 	}
 
-	public int getSeatNo() {
-		return seatNo;
+	public int getSeatNumber() {
+		return seatNumber;
 	}
 
-	public void setSeatNo(int seatNo) {
-		this.seatNo = seatNo;
+	public void setSeatNumber(int seatNumber) {
+		this.seatNumber = seatNumber;
 	}
 
 	public String getSeatType() {
@@ -79,26 +79,26 @@ public class Seat implements Serializable {
 		this.seatCoach = seatCoach;
 	}
 
-	public boolean isAvailable() {
+	public boolean getIsAvailable() {
 		return isAvailable;
 	}
 
-	public void setAvailable(boolean isAvailable) {
+	public void setIsAvailable(boolean isAvailable) {
 		this.isAvailable = isAvailable;
 	}
 
-	public Seat(int seatId, Train train, int seatNo, String seatType, String seatCoach, boolean isAvailable) {
+	public Seat(int seatId, Train train, int seatNumber, String seatType, String seatCoach, boolean isAvailable) {
 		super();
 		this.seatId = seatId;
 		this.train = train;
-		this.seatNo = seatNo;
+		this.seatNumber = seatNumber;
 		this.seatType = seatType;
 		this.seatCoach = seatCoach;
 		this.isAvailable = isAvailable;
 	}
 
 	public Seat() {
-		super();
+	
 	}
 	
 }

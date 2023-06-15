@@ -47,12 +47,19 @@ public class TrainDto {
 		this.toStation = toStation;
 	}
 	public TrainDto(long trainNo, String trainName) {
-		super();
 		this.trainNo = trainNo;
 		this.trainName = trainName;
 	}
 	public TrainDto() {
-		super();
+
+	}
+	
+	@Override
+	public String toString() {
+		return "TrainDto [trainNo=" + trainNo + ", trainName=" + trainName + ", fromStationTiming=" + fromStationTiming
+				+ ", toStationTiming=" + toStationTiming + ", fromStation=" + fromStation + ", toStation=" + toStation
+				+ "]";
 	}
 
+	
 }

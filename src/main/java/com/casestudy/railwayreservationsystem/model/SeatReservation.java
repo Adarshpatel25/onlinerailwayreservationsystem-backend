@@ -37,10 +37,9 @@ public class SeatReservation {
 	@OneToOne(cascade=CascadeType.ALL)
 	private Transaction transaction;
 	
-	@OneToOne
+	@OneToMany(cascade=CascadeType.ALL)
 	@NotFound(action = NotFoundAction.IGNORE)
-	@JoinColumn(name="seat_no", referencedColumnName = "seatNo")
-	private Seat seat;
+	private List<Seat> seat;
 	
 	private String trainStatus;
 	
@@ -56,7 +55,9 @@ public class SeatReservation {
 	
 	private String trainName;
 	private boolean isCancelled;
-
+	
+	private String seatCoach;
+	
 
 	public Users getUser() {
 		return user;
@@ -155,25 +156,29 @@ public class SeatReservation {
 	public void setTrainDate(String trainDate) {
 		this.trainDate = trainDate;
 	}
-	
-	public Seat getSeat() {
+	public List<Seat> getSeat() {
 		return seat;
 	}
-
-	public void setSeat(Seat seat) {
+	public void setSeat(List<Seat> seat) {
 		this.seat = seat;
 	}
+	
+	public String getSeatCoach() {
+		return seatCoach;
+	}
+	public void setSeatCoach(String seatCoach) {
+		this.seatCoach = seatCoach;
+	}
 
-	public SeatReservation(long pnrNo, Users user, List<Passenger> passenger, Transaction transaction, Seat seat,
-			 String trainStatus, Train train, String trainTiming,
-			String trainDate, String fromStation, String toStation, String trainName, boolean isCancelled) {
-		super();
+	
+	public SeatReservation(long pnrNo, Users user, List<Passenger> passenger, Transaction transaction, List<Seat> seat,
+			String trainStatus, Train train, String trainTiming, String trainDate, String fromStation, String toStation,
+			String trainName, boolean isCancelled, String seatCoach) {
 		this.pnrNo = pnrNo;
 		this.user = user;
 		this.passenger = passenger;
 		this.transaction = transaction;
 		this.seat = seat;
-	
 		this.trainStatus = trainStatus;
 		this.train = train;
 		this.trainTiming = trainTiming;
@@ -182,7 +187,9 @@ public class SeatReservation {
 		this.toStation = toStation;
 		this.trainName = trainName;
 		this.isCancelled = isCancelled;
+		this.seatCoach = seatCoach;
 	}
+	
 	public SeatReservation() {
 
 	}

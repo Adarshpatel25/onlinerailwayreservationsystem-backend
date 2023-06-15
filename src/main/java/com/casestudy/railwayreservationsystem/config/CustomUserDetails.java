@@ -25,10 +25,10 @@ public class CustomUserDetails implements UserDetails{
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		String role = null;
-		if(users.isAdmin()) {
+		if(users.getIsAdmin()) {
 			role = "ADMIN";
 		}
-		else if(users.isAdmin() == false) {
+		else if(users.getIsAdmin() == false) {
 			role = "USER";
 		}
 		

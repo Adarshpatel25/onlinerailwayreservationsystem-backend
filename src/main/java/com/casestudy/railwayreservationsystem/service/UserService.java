@@ -17,7 +17,6 @@ public class UserService {
 	@Autowired
 	private UserRepository userR;
 	
-	private Users loggedInUser;
 	
 	@Autowired
 	private ModelMapper modelMapper;
@@ -26,25 +25,30 @@ public class UserService {
 	private PasswordEncoder passwordEncoder;
 	
 	
-	public void createUser(UserReg userReg) {
-		Users user = modelMapper.map(userReg, Users.class);
-		user.setPassword(passwordEncoder.encode(userReg.getPassword()));
-		user.setAdmin(false);
+	public Users getUserByEmail(String email) {
+		return userR.findByEmail(email);
+	}
+	
+	
+	public void createAdmin() {
+		Users user = new Users();
+		user.setName("ADMIN");
+		user.setEmail("admin320@gmail.com");
+		user.setPassword(passwordEncoder.encode("12345"));
+		user.setIsAdmin(true);
+		user.setGender("Male");
+		user.setAge(21);
+		
 		userR.save(user);
 	}
 	
-	public boolean authenticateUser(String email, String password) {
-		List<Users> users = (List<Users>) userR.findAll();
-		for(Users user: users) {
-
-			if(user.getEmail().equals(email) && passwordEncoder.matches(password, user.getPassword())) {
-				setUser(user);
-				return true;
-			}
-			
-		}
-		return false;
+	public void createUser(UserReg userReg) {
+		Users user = modelMapper.map(userReg, Users.class);
+		user.setPassword(passwordEncoder.encode(userReg.getPassword()));
+		user.setIsAdmin(false);
+		userR.save(user);
 	}
+	
 	
 	public int getUserId(String email) {
 		List<Users> users = (List<Users>) userR.findAll();
@@ -54,14 +58,6 @@ public class UserService {
 			}
 		}
 		return -1;
-	}
-	
-	public Users getUser() {
-		return loggedInUser;
-	}
-	
-	public void setUser(Users user) {
-		this.loggedInUser = user;
 	}
 	
 }
